@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react"
 
-export const EntryForm = ({ entry, moods, onFormSubmit }) => {
+export const EntryForm = ({ entry, moods, tags, onFormSubmit }) => {
     const [editMode, setEditMode] = useState(false)
     const [updatedEntry, setUpdatedEntry] = useState(entry)
 
@@ -14,15 +14,34 @@ export const EntryForm = ({ entry, moods, onFormSubmit }) => {
         }
     }, [entry])
 
+
+
+    
+
+
     const handleControlledInputChange = (event) => {
-        /*
-            When changing a state object or array, always create a new one
-            and change state instead of modifying current one
-        */
-        const newEntry ={...updatedEntry}
-        newEntry[event.target.name] = event.target.value
+        const newEntry = { ...updatedEntry }
+        if (event.target.name === "tags") {
+          if (newEntry?.tags?.includes(parseInt(event.target.value))) {
+            const index = newEntry.tags.indexOf(parseInt(event.target.value));
+            console.log(index)
+            newEntry.tags.splice(index, 1);
+          } else {
+            newEntry[event.target.name].push(parseInt(event.target.value))
+          }
+    
+        }
+        else {
+            newEntry[event.target.name] = event.target.value
+        }
         setUpdatedEntry(newEntry)
-    }
+      };
+
+
+
+
+
+
 
 
 
@@ -34,6 +53,20 @@ export const EntryForm = ({ entry, moods, onFormSubmit }) => {
         }
         onFormSubmit(copyEntry)
     }
+
+
+    const CheckIfChecked = (tag) => {
+        let checked = updatedEntry?.tags?.find((et) => tag.id === et)
+        if (checked) {
+            return true
+        }
+        else {
+            return false
+        }
+    }
+
+
+
 
     return (
         <article className="panel is-info">
@@ -70,15 +103,32 @@ export const EntryForm = ({ entry, moods, onFormSubmit }) => {
                                     proptype="int"
                                     value={updatedEntry.mood_id}
                                     onChange={handleControlledInputChange}>
-                                        <option value="0">Select a mood</option>
-                                        {moods.map(m => (
-                                            <option key={m.id} value={m.id}>
-                                                {m.label}
-                                            </option>
-                                        ))}
+                                    <option value="0">Select a mood</option>
+                                    {moods.map(m => (
+                                        <option key={m.id} value={m.id}>
+                                            {m.label}
+                                        </option>
+                                    ))}
                                 </select>
                             </div>
                         </div>
+                    </div>
+                    <div className="field">
+                        {tags.map((tag) => {
+                            return (
+                                <>
+                                    <label>{tag.subject}</label>
+                                    <input
+                                        name="tags"
+                                        type="checkbox"
+                                        key={`tag--${tag.id}`}
+                                        checked={CheckIfChecked(tag)}//checked based on boolean state variable
+                                        value={tag.id}
+                                        onChange={handleControlledInputChange}
+                                    />
+                                </>
+                            );
+                        })}
                     </div>
                     <div className="field">
                         <div className="control">
